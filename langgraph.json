@@ -1,0 +1,12 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "agent": "./musicinfo/workflows/track_info_workflow.py:graph",
+    "test_agent": "./musicinfo/workflows/test_workflow.py:react_graph",
+    "complex": "./musicinfo/workflows/track_info_complex_workflow.py:complex_graph",
+    "tools": "./musicinfo/workflows/track_info_tools_workflow.py:tools_graph",
+    "full-tools": "./musicinfo/workflows/full_tools_workflow.py:graph"
+
+  },
+  "env": ".env"
+}

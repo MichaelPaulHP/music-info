@@ -1,0 +1,39 @@
+.env
+.ipynb_checkpoints
+.langgraph-data
+.idea
+functions/venv
+functions/__pycache__/*
+dist
+__pycache__
+.langgraph_api# Archivos de byte compilados
+__pycache__/
+*.py[cod]
+*$py.class
+
+.langgraph_api
+
+# Distribución / empaquetado
+dist/
+build/
+*.egg-info/
+
+# Entornos virtuales
+venv/
+env/
+.env/
+.venv/
+
+# Archivos de IDE y editores
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Archivos de caché
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Archivos locales de configuración
+.DS_Store
