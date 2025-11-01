@@ -37,9 +37,9 @@ def webhook(req: https_fn.Request) -> https_fn.Response:
         # Lógica para peticiones POST
         # Aquí procesarías los mensajes entrantes de WhatsApp
         request_json = req.get_json(silent=True)
-        print(' POST START JSON ')
+        print(' POST START JSON --------------')
         print(request_json)
-        print(' POST END JSON  ')
+        print(' POST END JSON  ----------')
         # Integrar con tu grafo de LangChain/LangGraph
         # ...
         asyncio.run(process_whatsapp_message(request_json, None))
