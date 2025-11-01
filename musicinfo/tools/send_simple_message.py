@@ -18,8 +18,7 @@ def send_simple_message(message, phone_number):
         ]
       }
     ]
-    res = messenger.send_template(template='track_info_log',
-                            recipient_id=phone_number, lang="es", components=component)
+    res = messenger.send_message(message,phone_number)
     print(f"WHATSAPP: ${message}  ${component}")
     print(f"WHATSAPP RES: ${res}  ")
     return "Success"

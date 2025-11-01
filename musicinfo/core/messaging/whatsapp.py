@@ -46,7 +46,7 @@ async def process_whatsapp_message(data, llm_service:None):
 
     logging.info("Received webhook data: %s", data)
     changed_field = messenger.changed_field(data)
-    changed_field.
+
     if changed_field == "messages":
         message_id = messenger.get_message_id(data)
         if message_id in loaded:
@@ -55,10 +55,23 @@ async def process_whatsapp_message(data, llm_service:None):
             loaded[message_id] = True
 
         new_message = messenger.get_mobile(data)
-        if message_id and new_message:
 
+
+        if message_id and new_message:
             mobile = messenger.get_mobile(data)
             name = messenger.get_name(data)
+            # writing
+            body = {
+                "messaging_product": "whatsapp",
+                "recipient_type": "individual",
+                "to": mobile,
+                "type": "typing",
+                "typing": {
+                    "status": "on"
+                }
+            }
+            messenger.send_custom_json(body)
+
             message_type = messenger.get_message_type(data)
             logging.info(
                 f"New Message; sender:{mobile} name:{name} type:{message_type}"
@@ -71,7 +84,7 @@ async def process_whatsapp_message(data, llm_service:None):
                 try:
                     # Validar el texto
                     text_validated = validate_whatsapp_text(message, max_chars=500)
-                    print("AGENT TASK")
+                    print("AGENT START")
                     graph = full_tools_workflow.graph
                     messages_input = [HumanMessage(content=f"{text_validated}. phone number: {mobile}")]
                     messages = graph.invoke({"messages": messages_input})

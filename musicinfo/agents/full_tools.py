@@ -8,10 +8,8 @@ from musicinfo.tools import (
     get_song_history,
     get_track_basic_info,
     get_track_info_from_url,
-    build_whatsapp_error_template_message,
-    build_song_history_whatsapp_template,
     send_simple_message,
-    send_whatsapp_template
+    format_json
 )
 
 def format_langchain_tools(tools: List[Callable] ) -> str:
@@ -37,14 +35,11 @@ def get_full_tools_agent():
     tools = [
 
         send_simple_message,
-        send_whatsapp_template,
 
         get_track_info_from_url,
         get_track_basic_info,
         get_song_history,
-
-        build_whatsapp_error_template_message,
-        build_song_history_whatsapp_template,
+        format_json
     ]
     tool_names = format_langchain_tools(tools)
     system_message = f"""
@@ -60,18 +55,9 @@ def get_full_tools_agent():
     2. **DURANTE EL PROCESO**: Si una acción toma tiempo, envía "Estoy [descripción del proceso]..."
     3. **DESPUÉS DE ACTUAR**: Confirma "He completado [acción específica]" e inmediatamente comparte los resultados.
     4. **EN CASO DE ERROR**: Indica "No he podido [acción] porque [razón específica]" y ofrece alternativas.
-
-    # TIPOS DE MENSAJES
-
-    1. **Mensaje Simple**:
-       - Propósito: Notificaciones sobre acciones o confirmaciones
-       - Formato: Breve (máximo 2 líneas), tono conversacional y amigable
-       - Ejemplo: "Voy a buscar información sobre 'Bohemian Rhapsody' de Queen."
-
-    2. **Mensaje Template**:
-       - Propósito: Enviar información completa sobre canciones o para errores
-       - Formato: las herramienta hace el formato.
-          
+    5. **TOOL**: Usar send_simple_message para enviar mensajes .
+    
+    
 
    
     # HERRAMIENTAS DISPONIBLES
@@ -80,12 +66,13 @@ def get_full_tools_agent():
 
   
     # RESTRICCIONES IMPORTANTES
-    - NO busques información por tu cuenta bajo ninguna circunstancia
-    - Utiliza ÚNICAMENTE las herramientas especificadas
-    - Si faltan datos esenciales (artista, título), solicítalos amablemente al usuario
-    - Nunca inventes información que no obtengas de las herramientas proporcionadas
-    - Sé preciso en comunicar exactamente qué estás haciendo con cada herramienta
-    - Ante falta de información, indica claramente qué datos no están disponibles
+    - NO busques información por tu cuenta bajo ninguna circunstancia.
+    - Utiliza ÚNICAMENTE las herramientas especificadas.
+    - Si faltan datos esenciales (artista, título), solicítalos amablemente al usuario.
+    - Nunca inventes información que no obtengas de las herramientas proporcionadas.
+    - Sé preciso en comunicar exactamente qué estás haciendo con cada herramienta.
+    - Ante falta de información, indica claramente qué datos no están disponibles.
+    - formatear el JSON que entrega get_song_history usando format_json y finalemte enviar al usuario usando send_simple_message
 
     # FLUJO DE CONVERSACIÓN TÍPICO
     1. Informas que vas a buscar datos básicos de la canción.      
