@@ -139,6 +139,29 @@ echo -e "${GREEN}${BOLD}[DEPLOY]${NC} Se ha actualizado requirements.txt con la 
 echo -e "${GREEN}${BOLD}[DEPLOY]${NC} Contenido de requirements.txt:"
 cat requirements.txt
 
+# Crear/actualizar entorno virtual
+echo ""
+echo -e "${GREEN}${BOLD}[DEPLOY]${NC} Preparando entorno virtual..."
+
+# Eliminar venv anterior si existe
+if [ -d "venv" ]; then
+    echo -e "${YELLOW}[WARNING]${NC} Eliminando entorno virtual anterior..."
+    rm -rf venv
+fi
+
+# Crear nuevo entorno virtual
+echo -e "${GREEN}${BOLD}[DEPLOY]${NC} Creando entorno virtual con Python..."
+python3 -m venv venv
+
+# Activar entorno e instalar dependencias
+echo -e "${GREEN}${BOLD}[DEPLOY]${NC} Instalando dependencias en el entorno virtual..."
+source venv/bin/activate
+pip install --upgrade pip --quiet
+pip install -r requirements.txt
+deactivate
+
+echo -e "${GREEN}${BOLD}[DEPLOY]${NC} Entorno virtual configurado correctamente."
+
 # Paso 3: Desplegar Firebase Function
 echo ""
 echo -e "${CYAN}${BOLD}╔════════════════════════════════════════════╗${NC}"
