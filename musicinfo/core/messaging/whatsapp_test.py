@@ -1,13 +1,11 @@
 import os
 
-from heyoo import WhatsApp
 from langchain_core.messages import HumanMessage
 import json
-from musicinfo.workflows import get_graph
 from dotenv import load_dotenv
 load_dotenv()
+from musicinfo.core.messaging.messenger import messenger
 
-messenger = WhatsApp(os.getenv('WHATSAPP_TOKEN'), phone_number_id=os.getenv('WHATSAPP_ID_PHONE_NUMBER'))
 
 
 def send_message_test(mobile, input_text ):
@@ -49,10 +47,23 @@ def send_message_test(mobile, input_text ):
       }
     ]
     #messenger.send_message('Hola', '51999766470')
-    messenger.send_template(template="track_info_simple",
-                            recipient_id="51999766470", lang="es", components= components  )
+    #messenger.send_template(template="track_info_simple",
+    #                        recipient_id="51999766470", lang="es", components= components  )
     #messenger.send_template("hello_world", "51999766470", lang="es", components= components)
+    messenger.send_message(input_text,mobile)
 
+
+def send_typing( message_id ):
+    body = {
+            "messaging_product": "whatsapp",
+            "status": "read",
+            "message_id": message_id,
+            "typing_indicator": {
+                "type": "text"
+            }
+    }
+    messenger.send_custom_json(body)
 
 
 #send_message_test("51999766470", "maría magdalena - Sandra")
+#send_typing("51999766470" )

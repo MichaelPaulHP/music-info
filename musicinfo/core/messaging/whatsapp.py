@@ -1,9 +1,7 @@
-from heyoo import WhatsApp
 import os
 import logging
-
 from langchain_core.messages import HumanMessage
-
+from .messenger  import WhatsApp
 from musicinfo.workflows import full_tools_workflow
 
 logger = logging.getLogger(__name__)
@@ -60,22 +58,16 @@ async def process_whatsapp_message(data, llm_service:None):
         if message_id and new_message:
             mobile = messenger.get_mobile(data)
             name = messenger.get_name(data)
-            # writing
-            body = {
-                "messaging_product": "whatsapp",
-                "recipient_type": "individual",
-                "to": mobile,
-                "type": "typing",
-                "typing": {
-                    "status": "on"
-                }
-            }
-            messenger.send_custom_json(body)
+
 
             message_type = messenger.get_message_type(data)
+            message_id = messenger.get_message_id(data)
             logging.info(
-                f"New Message; sender:{mobile} name:{name} type:{message_type}"
+                f"New Message; sender:{mobile} name:{name} type:{message_type}, id:{message_id}"
             )
+
+            messenger.send_typing(message_id)
+
             if message_type == "text":
                 message = messenger.get_message(data)
                 name = messenger.get_name(data)

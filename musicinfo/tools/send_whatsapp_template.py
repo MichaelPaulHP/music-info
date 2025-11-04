@@ -1,6 +1,6 @@
 from langchain_core.tools import tool
 
-from musicinfo.core.messaging.messenger import messenger
+from musicinfo.core  import messenger
 
 
 @tool
