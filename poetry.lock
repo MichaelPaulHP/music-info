@@ -274,11 +274,11 @@ description = "Cross-platform colored terminal text."
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
 groups = ["main", "dev"]
+markers = "platform_system == \"Windows\""
 files = [
     {file = "colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
     {file = "colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
 ]
-markers = {dev = "platform_system == \"Windows\""}
 
 [[package]]
 name = "distro"
@@ -303,25 +303,6 @@ files = [
     {file = "h11-0.14.0-py3-none-any.whl", hash = "sha256:e3fe4ac4b851c468cc8363d500db52c2ead036020723024a109d37346efaa761"},
     {file = "h11-0.14.0.tar.gz", hash = "sha256:8f19fbbe99e72420ff35c00b27a34cb9937e902a8b810e2c88300c6f0a3b699d"},
 ]
-
-[[package]]
-name = "heyoo"
-version = "0.1.2"
-description = "Opensource Python wrapper to WhatsApp Cloud API"
-optional = false
-python-versions = ">=3.6"
-groups = ["main"]
-files = [
-    {file = "heyoo-0.1.2-py3-none-any.whl", hash = "sha256:66990f2d2f2c43d42fa0870884c06569118f62ce430be9204eb891ac30de9cfb"},
-]
-
-[package.dependencies]
-colorama = "*"
-requests = ">=2.28.1"
-requests-toolbelt = ">=0.9.1"
-
-[package.extras]
-test = ["pytest (==7.1.3)", "python-dotenv (==0.20.0)"]
 
 [[package]]
 name = "httpcore"
@@ -1660,4 +1641,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12,<3.14"
-content-hash = "1572d6d1b25730b1c025700e2c64cf906e058e698ebb2e5b582d40cb44479a5c"
+content-hash = "f0b41691f94e0262b8c92763932978aeaac4245767e572380283554e3338b7d1"
