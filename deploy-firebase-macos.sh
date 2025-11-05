@@ -1,3 +1,4 @@
+
 #!/bin/bash
 # Script para automatizar el despliegue de una Firebase Function en macOS
 # que utiliza un paquete personalizado "musicinfo" gestionado con Poetry
@@ -19,7 +20,6 @@ ROOT_DIR="$(pwd)"
 MUSICINFO_DIR="$ROOT_DIR/musicinfo"
 FUNCTIONS_DIR="$ROOT_DIR/functions"
 DIST_DIR="$ROOT_DIR/dist"
-TEMP_DIR="$ROOT_DIR/temp"
 
 clear
 echo -e "${CYAN}${BOLD}╔════════════════════════════════════════════╗${NC}"
@@ -43,10 +43,70 @@ if [ ! -d "$FUNCTIONS_DIR" ]; then
     exit 1
 fi
 
-# Crear directorio temporal si no existe
-mkdir -p "$TEMP_DIR"
+# Leer versión del pyproject.toml
+echo -e "${GREEN}${BOLD}[DEPLOY]${NC} Leyendo versión del proyecto..."
+if [ -f "$ROOT_DIR/pyproject.toml" ]; then
+    PROJECT_VERSION=$(grep '^version = ' "$ROOT_DIR/pyproject.toml" | sed 's/version = "\(.*\)"/\1/')
+    echo -e "${BLUE}[INFO]${NC} Versión del proyecto: ${BOLD}v$PROJECT_VERSION${NC}"
+else
+    echo -e "${YELLOW}${BOLD}[WARNING]${NC} No se encontró pyproject.toml, no se podrá generar el mensaje de commit automático."
+    PROJECT_VERSION=""
+fi
 
-# Paso 1: Generar el paquete musicinfo usando Poetry
+# Paso 1: Verificar variables de entorno
+echo ""
+echo -e "${CYAN}${BOLD}╔════════════════════════════════════════════╗${NC}"
+echo -e "${CYAN}${BOLD}║      VERIFICANDO VARIABLES DE ENTORNO      ║${NC}"
+echo -e "${CYAN}${BOLD}╚════════════════════════════════════════════╝${NC}"
+echo ""
+
+if [ -f "$ROOT_DIR/.env" ] && [ -f "$FUNCTIONS_DIR/.env" ]; then
+    echo -e "${GREEN}${BOLD}[DEPLOY]${NC} Comparando archivos .env..."
+
+    # Extraer nombres de variables (líneas que no son comentarios ni vacías)
+    ROOT_VARS=$(grep -v '^#' "$ROOT_DIR/.env" | grep -v '^$' | cut -d'=' -f1 | sort)
+    FUNCTIONS_VARS=$(grep -v '^#' "$FUNCTIONS_DIR/.env" | grep -v '^$' | cut -d'=' -f1 | sort)
+
+    # Comparar variables
+    DIFF_VARS=$(comm -3 <(echo "$ROOT_VARS") <(echo "$FUNCTIONS_VARS") 2>/dev/null || true)
+
+    if [ -n "$DIFF_VARS" ]; then
+        echo -e "${YELLOW}${BOLD}[WARNING]${NC} Se detectaron diferencias en las variables de entorno:"
+        echo ""
+
+        # Variables en root pero no en functions
+        ONLY_ROOT=$(comm -23 <(echo "$ROOT_VARS") <(echo "$FUNCTIONS_VARS") 2>/dev/null || true)
+        if [ -n "$ONLY_ROOT" ]; then
+            echo -e "${YELLOW}Variables en ROOT/.env pero NO en functions/.env:${NC}"
+            echo "$ONLY_ROOT" | while read var; do echo "  - $var"; done
+            echo ""
+        fi
+
+        # Variables en functions pero no en root
+        ONLY_FUNCTIONS=$(comm -13 <(echo "$ROOT_VARS") <(echo "$FUNCTIONS_VARS") 2>/dev/null || true)
+        if [ -n "$ONLY_FUNCTIONS" ]; then
+            echo -e "${YELLOW}Variables en functions/.env pero NO en ROOT/.env:${NC}"
+            echo "$ONLY_FUNCTIONS" | while read var; do echo "  - $var"; done
+            echo ""
+        fi
+
+        echo -e "${YELLOW}${BOLD}[WARNING]${NC} Por favor, revisa que las variables de entorno sean correctas."
+        read -p "$(echo -e ${YELLOW}¿Deseas continuar con el despliegue? \(y/n\): ${NC})" -n 1 -r
+        echo ""
+        if [[ ! $REPLY =~ ^[YySs]$ ]]; then
+            echo -e "${RED}[ABORT]${NC} Despliegue cancelado por el usuario."
+            exit 0
+        fi
+    else
+        echo -e "${GREEN}${BOLD}[OK]${NC} Los archivos .env tienen las mismas variables."
+    fi
+elif [ ! -f "$ROOT_DIR/.env" ]; then
+    echo -e "${YELLOW}${BOLD}[WARNING]${NC} No se encontró archivo .env en el directorio raíz."
+elif [ ! -f "$FUNCTIONS_DIR/.env" ]; then
+    echo -e "${YELLOW}${BOLD}[WARNING]${NC} No se encontró archivo .env en el directorio functions."
+fi
+
+# Paso 2: Generar el paquete musicinfo usando Poetry
 echo ""
 echo -e "${CYAN}${BOLD}╔════════════════════════════════════════════╗${NC}"
 echo -e "${CYAN}${BOLD}║         GENERANDO PAQUETE MUSICINFO        ║${NC}"
@@ -92,14 +152,12 @@ fi
 WHEEL_FILENAME=$(basename "$WHEEL_FILE")
 echo -e "${GREEN}${BOLD}[DEPLOY]${NC} Archivo wheel encontrado: $WHEEL_FILENAME"
 
-# Copiar el archivo wheel al directorio temporal y también al directorio functions
+# Copiar el archivo wheel al directorio functions
 echo -e "${GREEN}${BOLD}[DEPLOY]${NC} Copiando el archivo wheel..."
-cp "$WHEEL_FILE" "$TEMP_DIR/"
 cp "$WHEEL_FILE" "$FUNCTIONS_DIR/"
-
 echo -e "${GREEN}${BOLD}[DEPLOY]${NC} Archivo wheel copiado a functions/$WHEEL_FILENAME"
 
-# Paso 2: Preparar Firebase Function
+# Paso 3: Preparar Firebase Function
 echo ""
 echo -e "${CYAN}${BOLD}╔════════════════════════════════════════════╗${NC}"
 echo -e "${CYAN}${BOLD}║       PREPARANDO FIREBASE FUNCTIONS        ║${NC}"
@@ -109,29 +167,9 @@ echo ""
 echo -e "${GREEN}${BOLD}[DEPLOY]${NC} Preparando Firebase Function..."
 cd "$FUNCTIONS_DIR"
 
-# Copiar el archivo .env de la raíz al directorio functions
-if [ -f "$ROOT_DIR/.env" ]; then
-    echo -e "${GREEN}${BOLD}[DEPLOY]${NC} Copiando archivo .env al directorio functions..."
-    cp "$ROOT_DIR/.env" "$FUNCTIONS_DIR/.env"
-    echo -e "${GREEN}${BOLD}[DEPLOY]${NC} Archivo .env copiado correctamente."
-else
-    echo -e "${YELLOW}${BOLD}[WARNING]${NC} No se encontró archivo .env en el directorio raíz."
-fi
-
-# Verificar si existe requirements.txt y hacer backup
-if [ -f "requirements.txt" ]; then
-    cp requirements.txt requirements.txt.bak
-    echo -e "${YELLOW}${BOLD}[WARNING]${NC} Se ha creado una copia de seguridad del archivo requirements.txt como requirements.txt.bak"
-fi
-
-# Crear o actualizar requirements.txt
-if [ -f "requirements.txt" ]; then
-    # Guardar contenido actual sin líneas de musicinfo
-    grep -vi "musicinfo" requirements.txt > "$TEMP_DIR/temp_req.txt" || true
-    cp "$TEMP_DIR/temp_req.txt" requirements.txt
-fi
-
-# Agregar la nueva versión de musicinfo al requirements.txt (usando la copia local)
+# Actualizar requirements.txt con el nuevo archivo wheel
+echo -e "${GREEN}${BOLD}[DEPLOY]${NC} Actualizando requirements.txt..."
+echo "firebase_functions~=0.1.0" > requirements.txt
 echo "$WHEEL_FILENAME" >> requirements.txt
 echo -e "${GREEN}${BOLD}[DEPLOY]${NC} Se ha actualizado requirements.txt con la nueva versión de musicinfo"
 
@@ -162,7 +200,7 @@ deactivate
 
 echo -e "${GREEN}${BOLD}[DEPLOY]${NC} Entorno virtual configurado correctamente."
 
-# Paso 3: Desplegar Firebase Function
+# Paso 4: Desplegar Firebase Function
 echo ""
 echo -e "${CYAN}${BOLD}╔════════════════════════════════════════════╗${NC}"
 echo -e "${CYAN}${BOLD}║         DESPLEGANDO A FIREBASE             ║${NC}"
@@ -181,23 +219,85 @@ fi
 # Desplegar la función
 firebase deploy --only functions
 
-# Limpieza
-echo ""
-echo -e "${GREEN}${BOLD}[DEPLOY]${NC} Limpiando archivos temporales..."
-if [ -f "requirements.txt.bak" ]; then
-    mv requirements.txt.bak requirements.txt
-    echo -e "${GREEN}${BOLD}[DEPLOY]${NC} Restaurado el archivo requirements.txt original"
-fi
-
 echo ""
 echo -e "${CYAN}${BOLD}╔════════════════════════════════════════════╗${NC}"
 echo -e "${CYAN}${BOLD}║          DESPLIEGUE COMPLETADO             ║${NC}"
 echo -e "${CYAN}${BOLD}╚════════════════════════════════════════════╝${NC}"
 echo ""
 echo -e "${GREEN}${BOLD}[DEPLOY]${NC} ¡Despliegue completado con éxito!"
-echo -e "${BLUE}[INFO]${NC} El directorio temporal '$TEMP_DIR' contiene el paquete generado."
 echo -e "${BLUE}[INFO]${NC} Fecha y hora del despliegue: $(date '+%Y-%m-%d %H:%M:%S')"
+
+# Paso 5: Opción de hacer commit
+echo ""
+echo -e "${CYAN}${BOLD}╔════════════════════════════════════════════╗${NC}"
+echo -e "${CYAN}${BOLD}║             CONTROL DE VERSIONES           ║${NC}"
+echo -e "${CYAN}${BOLD}╚════════════════════════════════════════════╝${NC}"
+echo ""
+
+cd "$ROOT_DIR"
+
+# Verificar si hay cambios en Git
+if command -v git &> /dev/null && [ -d ".git" ]; then
+    echo -e "${BLUE}[INFO]${NC} Estado actual del repositorio:"
+    echo ""
+    git status --short
+    echo ""
+
+    # Verificar si hay cambios
+    if [ -n "$(git status --porcelain)" ]; then
+        read -p "$(echo -e ${YELLOW}¿Deseas hacer commit de los cambios? \(y/n\): ${NC})" -n 1 -r
+        echo ""
+
+        if [[ $REPLY =~ ^[YySs]$ ]]; then
+            # Agregar todos los archivos modificados
+            git add -A
+
+            # Mostrar qué se va a commitear
+            echo ""
+            echo -e "${BLUE}[INFO]${NC} Archivos que se incluirán en el commit:"
+            git diff --cached --name-status
+            echo ""
+
+            # Mensaje de commit por defecto
+            if [ -n "$PROJECT_VERSION" ]; then
+                DEFAULT_MSG="chore: deploy v$PROJECT_VERSION to firebase"
+            else
+                DEFAULT_MSG="chore: deploy to firebase"
+            fi
+
+            echo -e "${BLUE}[INFO]${NC} Mensaje por defecto: ${BOLD}$DEFAULT_MSG${NC}"
+            read -p "$(echo -e ${YELLOW}Presiona Enter para usar el mensaje por defecto o escribe uno personalizado: ${NC})" COMMIT_MSG
+
+            if [ -z "$COMMIT_MSG" ]; then
+                COMMIT_MSG="$DEFAULT_MSG"
+            fi
+
+            # Hacer el commit
+            git commit -m "$COMMIT_MSG"
+            echo ""
+            echo -e "${GREEN}${BOLD}[SUCCESS]${NC} Commit realizado exitosamente."
+            echo ""
+
+            # Preguntar si desea hacer push
+            read -p "$(echo -e ${YELLOW}¿Deseas hacer push al repositorio remoto? \(y/n\): ${NC})" -n 1 -r
+            echo ""
+
+            if [[ $REPLY =~ ^[YySs]$ ]]; then
+                git push
+                echo ""
+                echo -e "${GREEN}${BOLD}[SUCCESS]${NC} Push realizado exitosamente."
+            else
+                echo -e "${BLUE}[INFO]${NC} Los cambios están en commit local. Usa 'git push' cuando estés listo."
+            fi
+        else
+            echo -e "${BLUE}[INFO]${NC} No se realizó el commit. Los cambios siguen sin versionar."
+        fi
+    else
+        echo -e "${BLUE}[INFO]${NC} No hay cambios para commitear."
+    fi
+else
+    echo -e "${YELLOW}[WARNING]${NC} Git no está disponible o no es un repositorio Git."
+fi
 
 echo ""
 echo -e "${MAGENTA}Gracias por usar el script de despliegue automático.${NC}"
-cd "$ROOT_DIR"
