@@ -169,8 +169,18 @@ cd "$FUNCTIONS_DIR"
 
 # Actualizar requirements.txt con el nuevo archivo wheel
 echo -e "${GREEN}${BOLD}[DEPLOY]${NC} Actualizando requirements.txt..."
-echo "firebase_functions~=0.1.0" > requirements.txt
+
+# Leer el requirements.txt actual y filtrar líneas que no sean musicinfo
+if [ -f requirements.txt ]; then
+    # Guardar todas las líneas que NO sean musicinfo en un archivo temporal
+    grep -v "^musicinfo" requirements.txt > requirements.txt.tmp || true
+    # Mover el archivo temporal al original
+    mv requirements.txt.tmp requirements.txt
+fi
+
+# Agregar el nuevo paquete musicinfo
 echo "$WHEEL_FILENAME" >> requirements.txt
+
 echo -e "${GREEN}${BOLD}[DEPLOY]${NC} Se ha actualizado requirements.txt con la nueva versión de musicinfo"
 
 # Mostrar el contenido actualizado de requirements.txt
