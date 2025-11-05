@@ -917,6 +917,17 @@ class WhatsApp(object):
         if "statuses" in data:
             return data["statuses"][0]["status"]
 
+    def changed_field(self, data: Dict[Any, Any]) -> str:
+        """
+        Helper function to check if the field changed in the data received from the webhook.
+
+        Args:
+            data [dict]: The data received from the webhook
+
+        Returns:
+            str: The field changed in the data received from the webhook
+        """
+        return data["entry"][0]["changes"][0]["field"]
 #print(f"has WHATSAPP_TOKEN {os.getenv('WHATSAPP_TOKEN')}")
 
 messenger =  WhatsApp(os.getenv('WHATSAPP_TOKEN'), phone_number_id=os.getenv('WHATSAPP_ID_PHONE_NUMBER'))
