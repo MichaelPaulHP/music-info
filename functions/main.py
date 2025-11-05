@@ -10,6 +10,11 @@ import sys
 # handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
 # logging.getLogger().addHandler(handler)
 # logging.getLogger().setLevel(logging.INFO)
+import google.cloud.logging
+logging_client = google.cloud.logging.Client()
+logging_client.setup_logging()
+
+
 initialize_app()
 
 
