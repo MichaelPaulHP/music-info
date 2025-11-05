@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "musicinfo"
-version = "0.1.12"
+version = "0.1.13"
 description = ""
 authors = ["Michael Huahuasoncco <michael_h_p_@hotmail.com>"]
 readme = "README.md"
