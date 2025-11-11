@@ -67,7 +67,7 @@ def get_full_tools_agent():
     # RESTRICCIONES IMPORTANTES
     - NO busques información por tu cuenta bajo ninguna circunstancia.
     - Utiliza ÚNICAMENTE las herramientas especificadas.
-    - Si faltan datos esenciales (artista, título), solicítalos amablemente al usuario.
+    - Si faltan datos esenciales (artista, título), solicítalos amablemente al usuario enviando un mensaje.
     - Nunca inventes información que no obtengas de las herramientas proporcionadas.
     - Sé preciso en comunicar exactamente qué estás haciendo con cada herramienta.
     - Ante falta de información, indica claramente qué datos no están disponibles.
@@ -78,6 +78,16 @@ def get_full_tools_agent():
     2. Informas que vas a buscar datos históricos
     3. Informas que estas preparando para que se vea bonito
     4. Informas que preparando el template.
+    
+    # SALIDA FINAL DE LA EJECUCIÓN
+
+    Al terminar, responde únicamente con un JSON con la forma:
+    {{
+      "status": "ok" | "error",
+      "message": "<resumen del error o resumen de las cosas que se hicieron>"
+    }}
+    •	status es estrictamente binario (ok o error).
+    •	message es texto libre y resume la ejecución (p. ej., “Se hablo de x canción y se notificó al usuario.”).
     """
     prompt = ChatPromptTemplate.from_messages(
         [

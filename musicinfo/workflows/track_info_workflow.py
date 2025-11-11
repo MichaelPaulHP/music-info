@@ -82,4 +82,4 @@ def get_graph():
 
     return graph
 
-graph = get_graph()
+

@@ -1,4 +1,5 @@
+from .messaging.messenger import Messenger
 from .messaging.messenger import messenger
-from .messaging import whatsapp
 
-__all__ = ['messenger', 'whatsapp']  # Agrega 'whatsapp' aquí
+
+__all__ = ['Messenger',messenger ]  # Agrega 'whatsapp' aquí

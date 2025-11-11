@@ -12,7 +12,7 @@ from typing import Optional, Dict, Any, List, Union
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
-class WhatsApp(object):
+class Messenger(object):
     """ "
     WhatsApp Object
     """
@@ -930,6 +930,6 @@ class WhatsApp(object):
         return data["entry"][0]["changes"][0]["field"]
 #print(f"has WHATSAPP_TOKEN {os.getenv('WHATSAPP_TOKEN')}")
 
-messenger =  WhatsApp(os.getenv('WHATSAPP_TOKEN'), phone_number_id=os.getenv('WHATSAPP_ID_PHONE_NUMBER'))
+messenger =  Messenger(os.getenv('WHATSAPP_TOKEN'), phone_number_id=os.getenv('WHATSAPP_ID_PHONE_NUMBER'))
 
 

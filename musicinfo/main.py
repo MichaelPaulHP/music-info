@@ -1,13 +1,13 @@
-import json
-
 from dotenv import load_dotenv
+load_dotenv()
+from langchain_core.messages import HumanMessage
+
 #from langchain_core.messages import HumanMessage
 
 #from musicinfo.tools import format_json, send_simple_message
 #from musicinfo.core.messaging.whatsapp_test import send_message_test
-#from musicinfo.workflows import full_tools_workflow
+from musicinfo.workflows import get_graph
 
-load_dotenv()
 # import logging
 # import sys
 # handler = logging.StreamHandler(sys.stdout)
@@ -53,12 +53,12 @@ def main():
         "otros": "La canción, con su pegajosa melodía y tema optimista, ayudó a cimentar la reputación de The Monkees como una de las bandas más queridas de los años 60, dejando una marca indeleble en la cultura pop estadounidense."
     }
 
-    #graph = full_tools_workflow.graph
+    graph = get_graph()
     mobile="51999766470"
-    # messages_input = [HumanMessage(content=f"{message_user}. phone number: {mobile}")]
-    # messages = graph.invoke({"messages": messages_input})
+    messages_input = [HumanMessage(content=f"{message_user}. phone number: {mobile}")]
+    messages = graph.invoke({"messages": messages_input})
     #send_simple_message("asdasdas",mobile)
-    #print(messages)
+    print(messages)
 
 
     #send_message_test("51999766470", text)

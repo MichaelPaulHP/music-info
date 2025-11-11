@@ -1,7 +1,7 @@
 
 from firebase_functions import https_fn
 from firebase_admin import initialize_app
-from musicinfo.core.messaging.whatsapp import process_whatsapp_message
+from musicinfo.handlers import process_whatsapp_message
 import asyncio
 import logging
 import sys

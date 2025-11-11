@@ -23,12 +23,12 @@ def extraer_json(texto):
 @tool
 def format_json(json_input):
     """Format json to get a string friendly to read."""
-    #llm = ChatOpenAI(model="gpt-4-turbo")
-    llm = ChatDeepSeek(
-        model="deepseek-chat",
-        temperature=0.6,
-
-    )
+    llm = ChatOpenAI(model="gpt-4-turbo")
+    #llm = ChatDeepSeek(
+    #    model="deepseek-chat",
+    #    temperature=0.6,
+    #
+    #)
 
     system_prompt = """
     Actúa como un Maestro del emoji y conversor de JSON.

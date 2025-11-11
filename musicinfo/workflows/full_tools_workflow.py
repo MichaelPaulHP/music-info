@@ -16,7 +16,6 @@ def build_assistant_node(agent):
 
     def assistant_node(state: MyState):
         next_message = agent.invoke(state["messages"])
-        print('return')
         return {"messages": [next_message], 'hola': 'HOLA MUNDO'}
 
     return assistant_node
@@ -47,5 +46,5 @@ def get_graph():
 
     return graph
 
-
+# To View Graph
 graph = get_graph()
