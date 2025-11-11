@@ -1,3 +1,2 @@
 firebase_functions~=0.1.0
-google-cloud-logging
 musicinfo-0.1.13-py3-none-any.whl

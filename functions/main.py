@@ -10,9 +10,19 @@ import sys
 # handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
 # logging.getLogger().addHandler(handler)
 # logging.getLogger().setLevel(logging.INFO)
-import google.cloud.logging
-logging_client = google.cloud.logging.Client()
-logging_client.setup_logging()
+# Configurar logging para que funcione tanto en local como en GCP
+# En GCP, stdout se captura automáticamente en Cloud Logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    stream=sys.stdout,
+    force=True  # Fuerza la reconfiguración del logger raíz
+)
+
+# Configurar el logger raíz para capturar todos los logs
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
 
 
 initialize_app()
