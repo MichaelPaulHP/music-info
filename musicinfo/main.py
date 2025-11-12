@@ -14,6 +14,18 @@ from musicinfo.workflows import get_graph
 # handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
 # logging.getLogger().addHandler(handler)
 # logging.getLogger().setLevel(logging.INFO)
+import sys
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    stream=sys.stdout,
+    force=True  # Fuerza la reconfiguración del logger raíz
+)
+
+# Configurar el logger raíz para capturar todos los logs
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 def main():
     # message_tidal = 'Escucha Original Sin en tu servicio de streaming https://tidal.com/track/7935349?u'
@@ -53,12 +65,12 @@ def main():
         "otros": "La canción, con su pegajosa melodía y tema optimista, ayudó a cimentar la reputación de The Monkees como una de las bandas más queridas de los años 60, dejando una marca indeleble en la cultura pop estadounidense."
     }
 
-    graph = get_graph()
-    mobile="51999766470"
-    messages_input = [HumanMessage(content=f"{message_user}. phone number: {mobile}")]
-    messages = graph.invoke({"messages": messages_input})
+    #graph = get_graph()
+    #mobile="51999766470"
+    #messages_input = [HumanMessage(content=f"{message_user}. phone number: {mobile}")]
+    #messages = graph.invoke({"messages": messages_input})
     #send_simple_message("asdasdas",mobile)
-    print(messages)
+    #print(messages)
 
 
     #send_message_test("51999766470", text)

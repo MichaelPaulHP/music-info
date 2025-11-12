@@ -1,5 +1,6 @@
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.tools import tool
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_openai import ChatOpenAI
 from langchain_deepseek import ChatDeepSeek
 import json
@@ -23,12 +24,20 @@ def extraer_json(texto):
 @tool
 def format_json(json_input):
     """Format json to get a string friendly to read."""
-    llm = ChatOpenAI(model="gpt-4-turbo")
+    #llm = ChatOpenAI(model="gpt-5-nano-2025-08-07")
     #llm = ChatDeepSeek(
     #    model="deepseek-chat",
     #    temperature=0.6,
     #
     #)
+    llm = ChatGoogleGenerativeAI(
+    model="gemini-flash-lite-latest",
+    temperature=0.6,
+    max_tokens=None,
+    timeout=None,
+    max_retries=2,
+    # other params...
+    )
 
     system_prompt = """
     Actúa como un Maestro del emoji y conversor de JSON.
